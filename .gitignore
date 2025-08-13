@@ -1,0 +1,34 @@
+# Archivos temporales de R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Archivos temporales de knitr y R Markdown
+*.utf8.md
+*.knit.md
+*.log
+*.out
+*.toc
+*.aux
+*.bbl
+*.blg
+cache/
+*_cache/
+*.Rproj
+
+# Datos crudos (no subir por peso o licencia)
+data/raw/
+
+# Archivos de Kaggle API (contienen credenciales)
+kaggle.json
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Salidas generadas automáticamente
+output/
+figs/
+rsconnect/
+.Rproj.user/

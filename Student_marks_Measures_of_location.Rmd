@@ -1,0 +1,200 @@
+---
+title: "Impact of Outliers on Measures of Location"
+author: "Barbara Sánchez"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+# 1. Introducción
+
+El trabajo actual ha sido realizado con *fines de estudio*, para poder ver el impacto que tienen los outliers sobre la media, mediana y moda.
+
+Este dataset incluye las calificaciones, tiempo de estudio y número de cursos de ciertos estudiantes.
+
+* Número de variables: 3
+
+* Número de observaciones: 100
+
+Dataset tomado de https://www.kaggle.com/yasserh
+
+Dataset: https://www.kaggle.com/datasets/yasserh/student-marks-dataset
+
+# 2. Objetivos
+
+* Calcular y representar gráficamente la media, mediana y moda
+
+* Visualizar y comprender el impacto que tienen los outliers sobre la media, mediana y moda.
+
+# 3. Configuración
+
+Instalamos los paquetes y cargamos las librerías necesarias.
+
+```{r}
+# Install necessary packages and libraries
+
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("dplyr")
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+# 4. Carga de datos
+
+```{r}
+# Read raw
+df <- read_csv("data/raw/Student_Marks.csv")
+```
+
+# 5. Exploración inicial (EDA básico)
+
+```{r}
+# First six lines of the df
+head(df)
+```
+
+```{r}
+# Internal structure of the df
+glimpse(df)
+```
+
+
+```{r}
+# Statistical summary
+summary(df)
+```
+```{r}
+# Test for NAs
+
+anyNA(df)
+sum(is.na(df))
+```
+
+# 6. Medidas de localización
+
+Las medidas de localización se han calculado respecto a la variable Marks.
+
+## 6.1 Media
+
+```{r}
+# Calculate mean
+
+media <- mean(df$Marks, na.rm = TRUE)
+
+print(round(media,1))
+
+```
+
+## 6.2 Mediana
+
+```{r}
+# Calculate median
+mediana <- median(df$Marks, na.rm = TRUE)
+print(round(mediana, 1))
+
+```
+
+## 6.3 Moda
+
+```{r}
+# Calculate mode
+# In a bimodal or multimodal situation, it only returns the lowest mode.
+
+freq_table <- table(df$Marks)
+moda <- min(as.numeric(names(freq_table)[freq_table == max(freq_table)])) 
+print(round(moda, 1))
+```
+## 6.4 Visualizamos la media, mediana y moda:
+
+```{r}
+ggplot(df, aes(x = Marks)) +
+  geom_histogram(binwidth = 5, fill = "lightgray", color = "gray36") +
+  # Mean
+  geom_vline(aes(xintercept = media), color = "#CD6090", linetype = "dashed", size = 1) +
+  annotate("text", x = media + 2, y = 7, label = paste("Media = ", round(media, 1)), color = "#CD6090") +
+  # Median
+  geom_vline(aes(xintercept = mediana), color = "#008B45", linetype = "dashed", size = 1) +
+  annotate("text", x = mediana + 2, y = 8, label = paste("Mediana = ", round(mediana, 1)), color = "#008B45") +
+  # Mode
+  geom_vline(aes(xintercept = moda), color = "#4169E1", linetype = "dashed", size = 1) +
+  annotate("text", x = moda + 2, y = 9, label = paste("Moda = ", round(moda, 1)), color = "#4169E1") + 
+  # Labels
+  labs(title = "Frecuencia de puntajes con medidas de localización", x ="Puntaje", y ="Frecuencia")
+```
+# 7. Impacto de outliers en las medidas de localización
+
+## 7.1 Dataset con outliers en Marks
+```{r}
+# Copy the df
+
+df_outliers <- df
+
+# Add outliers
+
+df_outliers <- rbind(df_outliers, data.frame(
+                                              number_courses = c(10, 12, 15),
+                                              time_study = c(1, 2, 3),
+                                              Marks = c(100, 99, 98)
+)
+)
+```
+
+## 7.2 Media
+
+```{r}
+# Calculate mean
+
+media_out <- mean(df_outliers$Marks, na.rm = TRUE)
+
+print(round(media_out, 1))
+
+```
+
+## 7.3 Mediana
+
+```{r}
+# Calculate median
+mediana_out <- median(df_outliers$Marks, na.rm = TRUE)
+print(round(mediana_out, 1))
+
+```
+
+## 7.4 Moda
+
+```{r}
+# Calculate mode
+# In a bimodal or multimodal situation, it only returns the lowest mode.
+
+freq_table_out <- table(df_outliers$Marks)
+moda_out <- min(as.numeric(names(freq_table_out)[freq_table_out == max(freq_table_out)])) 
+print(round(moda_out, 1))
+```
+
+## 7.5 Visualizamos el impacto de los outliers sobre la media, mediana y moda :
+
+```{r}
+ggplot(df_outliers, aes(x = Marks)) +
+  geom_histogram(binwidth = 5, fill = "lightgray", color = "gray36") +
+  # Mean
+  geom_vline(aes(xintercept = media_out), color = "#CD6090", linetype = "dashed", size = 1) +
+  annotate("text", x = media_out + 2, y = 7, label = paste("Media_out = ", round(media_out, 1)), color = "#CD6090") +
+  # Median
+  geom_vline(aes(xintercept = mediana_out), color = "#008B45", linetype = "dashed", size = 1) +
+  annotate("text", x = mediana_out + 2, y = 8, label = paste("Mediana_out = ", round(mediana_out, 1)), color = "#008B45") +
+  # Mode
+  geom_vline(aes(xintercept = moda_out), color = "#4169E1", linetype = "dashed", size = 1) +
+  annotate("text", x = moda_out + 2, y = 9, label = paste("Moda_out = ", round(moda_out, 1)), color = "#4169E1") + 
+  # Labels
+  labs(title = "Frecuencia de puntajes con medidas de localización en presencia de outliers", x ="Puntaje", y ="Frecuencia")
+```
+# 8. Conclusiones:
+
+* La media es la medida más afectada por la presencia de outliers, desplazándose considerablemente hacia el extremo (donde se encuentran estos outliers).
+
+* La mediana presenta una afectación mínima por la presencia de outliers, lo cual podríamos interpretar como que es más resistente a valores extremos; por lo que es la medida más robusta ante outliers.
+
+* La moda no se afecta por los outliers, ya que aparecen en menor cantidad que los valores con frecuencia máxima (modas).
+
+* En análisis de datos reales, especialmente con presencia de outliers, la mediana y otras medidas robustas suelen proporcionar una descripción más representativa que la media.
+
+* Este análisis evidencia la importancia de identificar y manejar los outliers antes de interpretar las medidas de tendencia central, especialmente cuando la media se utiliza como indicador principal en contextos educativos o de rendimiento académico.
